@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
+	"github.com/jumaniyozov/gorest/models"
 	"log"
 	"net/http"
 	"os"
@@ -32,6 +33,7 @@ type AppStatus struct {
 type application struct {
 	config config
 	logger *log.Logger
+	models models.Models
 }
 
 func main() {
@@ -39,7 +41,7 @@ func main() {
 
 	flag.IntVar(&cfg.port, "port", 4000, "Server port to listen on")
 	flag.StringVar(&cfg.env, "env", "development", "Application environment (development | production)")
-	flag.StringVar(&cfg.db.dsn, "dsn", "postgres://islom:123456qwe@localhost/govies?sslmode=disable", "postgres connection string")
+	flag.StringVar(&cfg.db.dsn, "dsn", "postgres://postgres:123456qwe@localhost:5433/govies?sslmode=disable", "postgres connection string")
 	flag.Parse()
 
 	logger := log.New(os.Stdout, "-> ", log.Ldate|log.Ltime)
@@ -53,6 +55,7 @@ func main() {
 	app := &application{
 		logger: logger,
 		config: cfg,
+		models: models.NewModels(db),
 	}
 
 	srv := &http.Server{
