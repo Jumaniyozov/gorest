@@ -104,7 +104,7 @@ func (app *application) editMovie(w http.ResponseWriter, r *http.Request) {
 
 	var movie models.Movie
 
-	if payload.ID != "0" {
+	if payload.ID != "0" && payload.ID != "" {
 		id, _ := strconv.Atoi(payload.ID)
 		m, _ := app.models.DB.Get(id)
 		movie = *m
@@ -141,6 +141,30 @@ func (app *application) editMovie(w http.ResponseWriter, r *http.Request) {
 		Message: "Movie successully added",
 	}
 
+	err = app.writeJSON(w, http.StatusOK, ok, "response")
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+}
+
+func (app *application) deleteMovie(w http.ResponseWriter, r *http.Request) {
+	params := httprouter.ParamsFromContext(r.Context())
+	id, err := strconv.Atoi(params.ByName("id"))
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	err = app.models.DB.DeleteMovie(id)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	ok := jsonResponse{
+		OK: true,
+	}
 	err = app.writeJSON(w, http.StatusOK, ok, "response")
 	if err != nil {
 		app.errorJSON(w, err)
